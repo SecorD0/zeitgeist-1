@@ -1,10 +1,10 @@
 use crate::cli::{Cli, Subcommand};
 use sc_cli::SubstrateCli;
-use sc_client_api::BlockBackend;
 use sc_service::PartialComponents;
 #[cfg(feature = "parachain")]
 use {
     parity_scale_codec::Encode, sp_core::hexdisplay::HexDisplay,
+    sc_client_api::client::BlockBackend,
     sp_runtime::traits::Block as BlockT, std::io::Write,
 };
 
@@ -56,6 +56,7 @@ pub fn run() -> sc_cli::Result<()> {
                 Ok((cmd.run(client, config.database), task_manager))
             })
         }
+        #[cfg(feature = "parachain")]
         Some(Subcommand::ExportHeader(cmd)) => {
             let runner = cli.create_runner(cmd)?;
 
@@ -64,7 +65,7 @@ pub fn run() -> sc_cli::Result<()> {
 
                 match client.block(&cmd.input.parse()?) {
                     Ok(Some(block)) => {
-                        println!("STATE: 0x{:?}", HexDisplay::from(&block.block.header.encode()));
+                        println!("0x{:?}", HexDisplay::from(&block.block.header.encode()));
                         Ok(())
                     }
                     Ok(None) => Err("Unknown block".into()),
